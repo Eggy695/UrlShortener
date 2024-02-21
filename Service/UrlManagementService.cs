@@ -21,7 +21,7 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<UrlManagmentDto> CreateShortUrlAsync(string url, string scheme, string host)
+        public async Task<UrlManagmentDto> CreateShortUrlAsync(string url)
         {
             if (!IsValidLongUrl(url))
                 throw new NotValidUrlException(url);
@@ -41,17 +41,17 @@ namespace Service
 
             if (urlToReturn.ShortUrl != null)
             {
-                urlToReturn.ShortUrl = ConstructShortUrlWithDomain(urlToReturn.ShortUrl, scheme, host);
+                urlToReturn.ShortUrl = ConstructShortUrlWithDomain(urlToReturn.ShortUrl);
             }
 
             return urlToReturn;
         }
 
         public async Task<UrlManagmentDto> GetLongUrlAsync(string shortUrl, bool trackChanges)
-        { 
-
-            // will have to strip the domain and only pass everything after the last / to the repository
-            var longUrl = await _repository.UrlManagement.GetLongUrlAsync(shortUrl, trackChanges);
+        {
+            var stringCutted = shortUrl.Split('/').Last();
+            
+            var longUrl = await _repository.UrlManagement.GetLongUrlAsync(stringCutted, trackChanges);
 
             if (longUrl is null)
                 throw new ShortUrlNotFoundException(shortUrl);
@@ -86,9 +86,9 @@ namespace Service
             return randomString;
         }
 
-        private string ConstructShortUrlWithDomain(string shortUrl, string scheme, string host)
+        private string ConstructShortUrlWithDomain(string shortUrl)
         {
-            return $"{scheme}://{host}/{shortUrl}";
+            return $"https://localhost:5001/{shortUrl}";
         }
     }
    

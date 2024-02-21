@@ -2,6 +2,7 @@
 using Contracts;
 using LoggerService;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Repository;
 using Service;
 using Service.Contracts;
@@ -53,5 +54,17 @@ namespace UrlShortener.Extensions
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
             }).AddMvc();
         }
+        public static void ConfigureSwagger(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(s =>
+            {
+                s.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Url Shortener",
+                    Version = "v1"
+                });
+            });
+        }
+
     }
 }

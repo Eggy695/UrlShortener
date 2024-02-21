@@ -24,6 +24,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 builder.Services.ConfigureVersioning();
+builder.Services.ConfigureSwagger();
 
 builder.Services.AddControllers()
 .AddApplicationPart(typeof(UrlManagement.Presentation.AssemblyReference).Assembly);
@@ -37,6 +38,12 @@ app.UseExceptionHandler(opt => { });
 if (app.Environment.IsProduction())
     // middleware for Strict-Transport-Security header
     app.UseHsts();
+
+app.UseSwagger();
+app.UseSwaggerUI(s =>
+{
+    s.SwaggerEndpoint("/swagger/v1/swagger.json", "Url Shortener v1");
+});
 
 app.UseHttpsRedirection();
 // enables using static files for the request. If we don't it will use wwwroot folder by default

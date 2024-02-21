@@ -6,7 +6,6 @@ namespace Service.Contracts
     {
         Task<UrlManagmentDto> GetLongUrlAsync(string shortUrl, bool trackChanges);
 
-        Task<UrlManagmentDto> CreateShortUrlAsync(string url, string scheme, string host);
-
+        Task<UrlManagmentDto> CreateShortUrlAsync(string url);
     }
 }

@@ -37,7 +37,7 @@ namespace UnitTestSuite
             _mapperMock.Setup(m => m.Map<UrlManagmentDto>(It.IsAny<UrlManagementObj>())).Returns(new UrlManagmentDto() { ShortUrl = url }); ;
 
             // Act
-            var result = await _service.CreateShortUrlAsync(url, scheme, host);
+            var result = await _service.CreateShortUrlAsync(url);
 
             // Assert
             Assert.NotNull(result);
@@ -66,11 +66,9 @@ namespace UnitTestSuite
         {
             // Arrange
             string url = "invalid url";
-            string scheme = "http";
-            string host = "localhost";
-
+        
             // Act & Assert
-            await Assert.ThrowsAsync<NotValidUrlException>(() => _service.CreateShortUrlAsync(url, scheme, host));
+            await Assert.ThrowsAsync<NotValidUrlException>(() => _service.CreateShortUrlAsync(url));
         }
 
         [Fact]
