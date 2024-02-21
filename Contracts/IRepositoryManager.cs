@@ -10,6 +10,6 @@ namespace Contracts
     {
         IUrlManagementRepository UrlManagement { get; }
 
-        void Save();
+        Task SaveAsync();
     }
 }

@@ -12,29 +12,27 @@
 
         public UrlManagementController(IServiceManager service) => _service = service;
 
-        [HttpGet]
-        public IActionResult GetUrls() 
-        {   
-            var urls = _service.UrlManagementService.GetAllUrls(false);
-            
-            return Ok(urls);           
-        }
-
         [HttpGet("id/{shortUrl}", Name = "GetLongUrl")]
-        public IActionResult GetLongUrl(string shortUrl)
+        public async Task<IActionResult> GetLongUrl(string shortUrl)
         {
-            var urls = _service.UrlManagementService.GetLongUrl(shortUrl, false);
+            var urlObject = await _service.UrlManagementService.GetLongUrlAsync(shortUrl, false);
 
-            return Ok(urls.OriginalUrl);
+            if (urlObject == null || string.IsNullOrEmpty(urlObject.OriginalUrl))
+            {
+                return BadRequest("URL object is null or original URL is empty");
+            }
+
+            return Redirect(urlObject.OriginalUrl);
         }
 
         [HttpPost(Name = "CreateShortUrl")]
-        public IActionResult CreateShortUrl([FromBody]string longUrl)
+        public async Task<IActionResult> CreateShortUrl([FromBody]string longUrl)
         {
             if (string.IsNullOrWhiteSpace(longUrl))
                 return BadRequest("URL object is null");
 
-            var createdShortUrl = _service.UrlManagementService.CreateShortUrl(longUrl, HttpContext.Request.Scheme, HttpContext.Request.Host.ToString());
+            var createdShortUrl = await _service.UrlManagementService.CreateShortUrlAsync(longUrl, HttpContext.Request.Scheme, HttpContext.Request.Host.ToString());
+            
             return CreatedAtRoute("CreateShortUrl", new { id = createdShortUrl.ShortUrl },
             createdShortUrl);
         }

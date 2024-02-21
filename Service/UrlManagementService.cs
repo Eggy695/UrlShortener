@@ -4,7 +4,6 @@ using Entities.Exceptions;
 using Entities.Models;
 using Service.Contracts;
 using Shared.DataTransferObjects;
-using System.Net.Http;
 using System.Text.RegularExpressions;
 
 namespace Service
@@ -22,7 +21,7 @@ namespace Service
             _mapper = mapper;
         }
 
-        public UrlManagmentDto CreateShortUrl(string url, string scheme, string host)
+        public async Task<UrlManagmentDto> CreateShortUrlAsync(string url, string scheme, string host)
         {
             if (!IsValidLongUrl(url))
                 throw new NotValidUrlException(url);
@@ -32,33 +31,27 @@ namespace Service
                 OriginalUrl = url,
                 ShortUrl = CreateShortUrl()
             };
-            
+
             var urlEntity = _mapper.Map<UrlManagement>(urlForShortUrlCreationDto);
 
             _repository.UrlManagement.CreateShortUrl(urlEntity);
-            _repository.Save();
+            await _repository.SaveAsync();
 
             var urlToReturn = _mapper.Map<UrlManagmentDto>(urlEntity);
 
-            urlToReturn.ShortUrl = ConstructShortUrlWithDomain(urlToReturn.ShortUrl, scheme, host);
+            if (urlToReturn.ShortUrl != null)
+            {
+                urlToReturn.ShortUrl = ConstructShortUrlWithDomain(urlToReturn.ShortUrl, scheme, host);
+            }
 
             return urlToReturn;
         }
 
-        public IEnumerable<UrlManagmentDto> GetAllUrls(bool trackChanges)
-        {
-            var urls = _repository.UrlManagement.GetAllUrls(trackChanges);
-
-            var urlsDto = _mapper.Map<IEnumerable<UrlManagmentDto>>(urls);
-            
-            return urlsDto;           
-        }
-
-        public UrlManagmentDto GetLongUrl(string shortUrl, bool trackChanges)
+        public async Task<UrlManagmentDto> GetLongUrlAsync(string shortUrl, bool trackChanges)
         { 
 
             // will have to strip the domain and only pass everything after the last / to the repository
-            var longUrl = _repository.UrlManagement.GetLongUrl(shortUrl, trackChanges);
+            var longUrl = await _repository.UrlManagement.GetLongUrlAsync(shortUrl, trackChanges);
 
             if (longUrl is null)
                 throw new ShortUrlNotFoundException(shortUrl);

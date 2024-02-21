@@ -15,4 +15,11 @@
     <ProjectReference Include="..\Service.Contracts\Service.Contracts.csproj" />
   </ItemGroup>
 
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>UnitTestSuite</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+
 </Project>
