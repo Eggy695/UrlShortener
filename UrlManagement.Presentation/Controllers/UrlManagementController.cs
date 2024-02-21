@@ -1,9 +1,12 @@
 ﻿namespace UrlManagement.Presentation.Controllers
 {
+    using Asp.Versioning;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.OutputCaching;
     using Service.Contracts;
 
+    [ApiVersion("1.0")]
     [Route("api/url-shortner")]
     [ApiController]
     public class UrlManagementController : ControllerBase
@@ -11,6 +14,7 @@
         private readonly IServiceManager _service;
 
         public UrlManagementController(IServiceManager service) => _service = service;
+
 
         [HttpGet("id/{shortUrl}", Name = "GetLongUrl")]
         public async Task<IActionResult> GetLongUrl(string shortUrl)

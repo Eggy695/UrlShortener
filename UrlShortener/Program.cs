@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using UrlShortener.Extensions;
 using NLog;
-using Contracts;
 using UrlShortener;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +23,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+builder.Services.ConfigureVersioning();
 
 builder.Services.AddControllers()
 .AddApplicationPart(typeof(UrlManagement.Presentation.AssemblyReference).Assembly);
