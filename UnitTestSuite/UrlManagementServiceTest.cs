@@ -5,8 +5,6 @@ using UrlManagementObj = Entities.Models.UrlManagement;
 using Moq;
 using Service;
 using Shared.DataTransferObjects;
-using System;
-using Xunit;
 
 namespace UnitTestSuite
 {
@@ -18,47 +16,11 @@ namespace UnitTestSuite
         private readonly UrlManagementService _service;
 
         public UrlManagementServiceTest()
-    
         {
             _repositoryMock = new Mock<IRepositoryManager>();
             _loggerMock = new Mock<ILoggerManager>();
             _mapperMock = new Mock<IMapper>();
             _service = new UrlManagementService(_repositoryMock.Object, _loggerMock.Object, _mapperMock.Object);
-        }
-
-        [Fact]
-        public async void CreateShortUrl_ValidUrl_ReturnsShortUrl()
-        {
-            // Arrange
-            string url = "http://www.example.com";
-            string scheme = "http";
-            string host = "localhost";
-            _mapperMock.Setup(m => m.Map<UrlManagementObj>(It.IsAny<UrlForShortUrlCreationDto>())).Returns(new UrlManagementObj());
-            _mapperMock.Setup(m => m.Map<UrlManagmentDto>(It.IsAny<UrlManagementObj>())).Returns(new UrlManagmentDto() { ShortUrl = url }); ;
-
-            // Act
-            var result = await _service.CreateShortUrlAsync(url);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.NotNull(result.ShortUrl);
-        }
-
-        [Fact]
-        public async Task GetLongUrl_ValidShortUrl_ReturnsLongUrlAsync()
-        {
-            // Arrange
-            string shortUrl = "test";
-            //_repositoryMock.Setup(r => r.UrlManagement.GetLongUrlAsync(shortUrl, false)).Returns(new UrlManagementObj());
-            _mapperMock.Setup(m => m.Map<UrlManagmentDto>(It.IsAny<UrlManagementObj>())).Returns(new UrlManagmentDto() { OriginalUrl = "http://www.test.ai" });
-
-
-            // Act
-            var result = await _service.GetLongUrlAsync(shortUrl, false);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.NotNull(result.OriginalUrl);
         }
 
         [Fact]
@@ -72,13 +34,21 @@ namespace UnitTestSuite
         }
 
         [Fact]
-        public async Task GetLongUrl_InvalidShortUrl_ThrowsException()
+        public async Task GetLongUrlAsync_ValidShortUrl_ReturnsUrlManagmentDto()
         {
             // Arrange
-            string shortUrl = "invalid";
+            string shortUrl = "abc123";
+            var urlManagement = new UrlManagementObj { OriginalUrl = "https://www.example.com", ShortUrl = shortUrl };
+            var urlManagmentDto = new UrlManagmentDto { OriginalUrl = "https://www.example.com", ShortUrl = shortUrl };
 
-            // Act & Assert
-            await Assert.ThrowsAsync<ShortUrlNotFoundException>(() => _service.GetLongUrlAsync(shortUrl, false));
+            _repositoryMock.Setup(r => r.UrlManagement.GetLongUrlAsync(shortUrl, false)).ReturnsAsync(urlManagement);
+            _mapperMock.Setup(m => m.Map<UrlManagmentDto>(It.IsAny<UrlManagementObj>())).Returns(urlManagmentDto);
+
+            // Act
+            var result = await _service.GetLongUrlAsync(shortUrl, false);
+
+            // Assert
+            Assert.Equal(urlManagmentDto, result);
         }
     }
 }

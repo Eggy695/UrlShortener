@@ -25,7 +25,9 @@ namespace UrlShortener
             {
                 httpContext.Response.StatusCode = contextFeature.Error switch
                 {
-                    NotFoundException => StatusCodes.Status404NotFound,
+                    NotValidUrlException => StatusCodes.Status400BadRequest,
+                    ShortUrlNotFoundException => StatusCodes.Status404NotFound,
+                    LongUrlNotFoundException => StatusCodes.Status404NotFound,
                     _ => StatusCodes.Status500InternalServerError
                 };
 

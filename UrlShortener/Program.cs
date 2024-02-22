@@ -25,6 +25,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 builder.Services.ConfigureVersioning();
 builder.Services.ConfigureSwagger();
+builder.Services.AddMemoryCache();
 
 builder.Services.AddControllers()
 .AddApplicationPart(typeof(UrlManagement.Presentation.AssemblyReference).Assembly);

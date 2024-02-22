@@ -39,19 +39,12 @@ namespace Service
 
             var urlToReturn = _mapper.Map<UrlManagmentDto>(urlEntity);
 
-            if (urlToReturn.ShortUrl != null)
-            {
-                urlToReturn.ShortUrl = ConstructShortUrlWithDomain(urlToReturn.ShortUrl);
-            }
-
             return urlToReturn;
         }
 
         public async Task<UrlManagmentDto> GetLongUrlAsync(string shortUrl, bool trackChanges)
         {
-            var stringCutted = shortUrl.Split('/').Last();
-            
-            var longUrl = await _repository.UrlManagement.GetLongUrlAsync(stringCutted, trackChanges);
+            var longUrl = await _repository.UrlManagement.GetLongUrlAsync(shortUrl, trackChanges);
 
             if (longUrl is null)
                 throw new ShortUrlNotFoundException(shortUrl);
@@ -63,12 +56,19 @@ namespace Service
 
         private bool IsValidLongUrl(string url)
         {
+            // Url starts with "http://" or "https://", optionally followed by "www.".
+            // Then it expects any combination of alphanumeric characters or special characters like @:%._\+~#?&//=.
+            // This part should be between 2 and 256 characters long and followed by a dot.
+            // After the dot, it expects 2 to 6 lowercase letters, which represent the domain extension like .com, .org, etc.
+            // Finally, it can end with any combination of alphanumeric characters or special characters like @:%._\+~#?&//=.
             string strRegex = @"((http|https)://)(www.)?" +
                 "[a-zA-Z0-9@:%._\\+~#?&//=]" +
                 "{2,256}\\.[a-z]" +
                 "{2,6}\\b([-a-zA-Z0-9@:%" +
                 "._\\+~#?&//=]*)";
+
             Regex re = new Regex(strRegex);
+
             if (re.IsMatch(url))
                 return (true);
             else
@@ -77,18 +77,14 @@ namespace Service
 
         private string CreateShortUrl()
         {
-            // create a short version of the url
+            // Create a short version of the url
+            // 7 characters in base62 will generate roughly ~3500 Billion URLs. 62 to the power of 7 base 62 are [0–9][a-z][A-Z]
             var random = new Random();
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var randomString = new string(Enumerable.Repeat(chars, 7)
                 .Select(x => x[random.Next(x.Length)]).ToArray());
 
             return randomString;
-        }
-
-        private string ConstructShortUrlWithDomain(string shortUrl)
-        {
-            return $"https://localhost:5001/{shortUrl}";
         }
     }
    
